@@ -1,5 +1,6 @@
 package com.example.restfulwebservice.user;
 
+import org.apache.coyote.Request;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -50,5 +51,24 @@ public class UserController {
         if(user == null) {
             throw new UserNotFoundException(String.format("ID[%s] not found", id));
         }
+    }
+
+    @PutMapping(path = "/users")
+    public ResponseEntity<User> updateUser(@RequestBody User user) {
+        int id = user.getId();
+        String name = user.getName();
+
+        User updateUser = service.updateById(id, name);
+
+        if(updateUser == null) {
+            throw new UserNotFoundException(String.format("ID[%s] not found", id));
+        }
+
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(id)
+                .toUri();
+
+        return ResponseEntity.created(location).build();
     }
 }
